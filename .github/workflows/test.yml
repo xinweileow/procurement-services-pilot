@@ -1,0 +1,18 @@
+name: test
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # Replace with your actual toolchain setup and test command, e.g.:
+      # - uses: actions/setup-node@v4
+      #   with:
+      #     node-version: 20
+      # - run: npm ci
+      - run: echo "Wire this up to your real test command once the first story has code."
