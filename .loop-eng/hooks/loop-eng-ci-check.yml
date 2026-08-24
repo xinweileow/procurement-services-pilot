@@ -1,0 +1,53 @@
+# Server-side counterpart to .loop-eng/hooks/pre-push (pre-flight checklist
+# item 5). NOT auto-installed by anything in this repo — this is a template
+# to copy to <target-repo>/.github/workflows/loop-eng-ci-check.yml when
+# vendoring .loop-eng into a real target repo (GitHub only discovers
+# workflow files at a repo's own top-level .github/workflows/, not inside a
+# vendored subdirectory).
+#
+# Runs the identical check the local pre-push hook runs
+# (.loop-eng/hooks/ci_check.py delegates to pre_push_check.check_push() --
+# one implementation, not a second copy), against whichever commits a
+# pull_request or push event is actually introducing.
+#
+# This alone does NOT block a bad merge -- it only makes the failure
+# visible in CI. To make it an enforced gate (closing the "--no-verify
+# bypasses the local hook" gap this exists for), a repo admin must also add
+# a branch protection rule on the target repo requiring the
+# "loop-eng gate" check (the job name below) to pass before merging.
+# That's a manual GitHub settings step, deliberately not automated here.
+
+name: loop-eng CI check
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  loop-eng-gate:
+    name: loop-eng gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Full history, not the default shallow clone -- the check diffs
+          # base..head itself (see ci_check.py/pre_push_check.py), which
+          # needs both commits actually present locally.
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install ruff (lint guardrail -- skipped non-fatally if this step is removed/fails)
+        run: pip install ruff
+
+      - name: Run loop-eng's independent gate (guardrails + secrets scan + regression suite)
+        env:
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+          GITHUB_SHA: ${{ github.sha }}
+          GITHUB_EVENT_BEFORE: ${{ github.event.before }}
+          GITHUB_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          GITHUB_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: python .loop-eng/hooks/ci_check.py

@@ -1,0 +1,19 @@
+#!/bin/sh
+# Independent merge gate (plan's folder structure: "hooks/pre-push --
+# independent gate -- can't be bypassed either mode"). Runs via Git for
+# Windows' bundled sh.exe on Windows the same as on Mac/Linux (pre-flight
+# item 8: cross-platform hook compatibility) -- no platform-specific
+# commands here, everything real happens in pre_push_check.py.
+#
+# NOT auto-installed by cloning/checking out this repo -- git only runs
+# hooks from .git/hooks/, which is itself never tracked by git. Install
+# once per clone, from the target repo root:
+#   cp .loop-eng/hooks/pre-push .git/hooks/pre-push
+#   chmod +x .git/hooks/pre-push
+#
+# Bypassable via `git push --no-verify` -- this is the LOCAL half of the
+# gate only (pre-flight item 5: a server-side check / branch protection is
+# still needed as the second line of defense, not built here).
+
+python "$(git rev-parse --show-toplevel)/.loop-eng/hooks/pre_push_check.py"
+exit $?
