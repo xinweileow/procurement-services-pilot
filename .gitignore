@@ -2,3 +2,5 @@
 .env.local
 .loop-eng/.loop/
 .loop-eng/data/
+__pycache__/
+*.pyc
