@@ -62,6 +62,14 @@ public sealed class ProcurementDbContext(DbContextOptions<ProcurementDbContext> 
     public DbSet<EpvVoucher> EpvVouchers => Set<EpvVoucher>();
     public DbSet<InvoiceException> InvoiceExceptions => Set<InvoiceException>();
 
+    // Module M11
+    public DbSet<Payment> Payments => Set<Payment>();
+    public DbSet<SelfBilledRecord> SelfBilledRecords => Set<SelfBilledRecord>();
+    public DbSet<GlEntry> GlEntries => Set<GlEntry>();
+    public DbSet<BankRecord> BankRecords => Set<BankRecord>();
+    public DbSet<ReconciliationException> ReconciliationExceptions => Set<ReconciliationException>();
+    public DbSet<AuditPack> AuditPacks => Set<AuditPack>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Request>().Property(r => r.Status).HasConversion<string>();
