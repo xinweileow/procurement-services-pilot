@@ -36,6 +36,11 @@ public sealed class ProcurementDbContext(DbContextOptions<ProcurementDbContext> 
     public DbSet<SupplierException> SupplierExceptions => Set<SupplierException>();
     public DbSet<SupplierDocument> SupplierDocuments => Set<SupplierDocument>();
 
+    // Module M6
+    public DbSet<RfxEvent> RfxEvents => Set<RfxEvent>();
+    public DbSet<RfxInvitation> RfxInvitations => Set<RfxInvitation>();
+    public DbSet<RfxSubmission> RfxSubmissions => Set<RfxSubmission>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Request>().Property(r => r.Status).HasConversion<string>();
