@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Procurement.Api.Models;
 
 namespace Procurement.Api.Data;
 
@@ -11,4 +12,13 @@ namespace Procurement.Api.Data;
 /// </summary>
 public sealed class ProcurementDbContext(DbContextOptions<ProcurementDbContext> options) : DbContext(options)
 {
+    // Module M1
+    public DbSet<Request> Requests => Set<Request>();
+    public DbSet<RequestAttachment> RequestAttachments => Set<RequestAttachment>();
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Request>().Property(r => r.Status).HasConversion<string>();
+        modelBuilder.Entity<Request>().Property(r => r.RoutingDestination).HasConversion<string>();
+    }
 }

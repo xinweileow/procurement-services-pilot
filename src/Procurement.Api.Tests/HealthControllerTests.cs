@@ -1,9 +1,8 @@
 using System.Net;
-using Microsoft.AspNetCore.Mvc.Testing;
 
 namespace Procurement.Api.Tests;
 
-public sealed class HealthControllerTests(WebApplicationFactory<Program> factory) : IClassFixture<WebApplicationFactory<Program>>
+public sealed class HealthControllerTests(ProcurementApiFactory factory) : IClassFixture<ProcurementApiFactory>
 {
     [Fact]
     public async Task Health_ReturnsOk()
