@@ -127,6 +127,30 @@ public sealed class NegotiationController(ProcurementDbContext db) : ControllerB
         return Ok(new SavingsCalculationResponse(record.SavingsAmount, record.SavingsType, record.FinanceValidated));
     }
 
+    /// <summary>
+    /// docs/kb/technical_kb.md Module M12 REST API Listing: `PATCH /api/v1/savings-records/{id}/finance-validation`,
+    /// restricted to the Finance role. No auth middleware exists in this codebase yet (Module M9's
+    /// Open Decisions already flag the bearer-token convention as an unconfirmed placeholder), so
+    /// the caller's role is read from an `X-User-Role` header until a real auth scheme is wired up.
+    /// </summary>
+    [HttpPatch("savings-records/{id:guid}/finance-validation")]
+    public async Task<ActionResult<FinanceValidationResponse>> FinanceValidateSavings(
+        Guid id, [FromHeader(Name = "X-User-Role")] string? userRole, [FromBody] FinanceValidationRequest body, CancellationToken ct)
+    {
+        if (!string.Equals(userRole, "Finance", StringComparison.OrdinalIgnoreCase))
+        {
+            throw new ForbiddenException("Only the Finance role may validate a savings record.");
+        }
+
+        var record = await db.SavingsRecords.FindAsync([id], ct)
+            ?? throw new NotFoundException($"Savings record {id} not found");
+
+        record.FinanceValidated = body.Validated;
+        await db.SaveChangesAsync(ct);
+
+        return Ok(new FinanceValidationResponse(record.Id, record.FinanceValidated));
+    }
+
     private async Task<int> NextRoundNumberAsync(Guid rfxEventId, Guid supplierId, CancellationToken ct)
     {
         var lastRoundNumber = await db.NegotiationRounds

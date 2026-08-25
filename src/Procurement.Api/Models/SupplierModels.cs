@@ -24,6 +24,8 @@ public sealed class Supplier
     public bool ActiveFlag { get; set; } = true;
     public DateTime? LicenseExpiryUtc { get; set; }
     public DateTime? RequalificationDueUtc { get; set; }
+    public string? RequalificationTrigger { get; set; } // scheduled | renewal | material_change
+    public string? RequalificationStatus { get; set; }
     public DateTime CreatedAtUtc { get; set; } = DateTime.UtcNow;
 }
 

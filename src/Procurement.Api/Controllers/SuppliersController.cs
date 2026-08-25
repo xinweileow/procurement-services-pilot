@@ -161,17 +161,48 @@ public sealed class SuppliersController(ProcurementDbContext db) : ControllerBas
             supplier.Id, supplier.LegalEntityName, supplier.RegistrationNumber, supplier.TaxId, supplier.Address, "deactivated", false));
     }
 
+    /// <summary>
+    /// docs/kb/technical_kb.md Module M12 REST API Listing extends this pre-existing M5 endpoint
+    /// with a `trigger` (scheduled|renewal|material_change) and a `requalificationStatus`
+    /// response; the route itself is unchanged. Body is optional to stay compatible with
+    /// existing M5 callers that POST with no content.
+    /// </summary>
     [HttpPost("{id:guid}/requalify")]
-    public async Task<ActionResult<SupplierResponse>> Requalify(Guid id, CancellationToken ct)
+    public async Task<ActionResult<RequalifySupplierResponse>> Requalify(
+        Guid id, [FromBody] RequalifySupplierRequest? body, CancellationToken ct)
     {
         var supplier = await db.Suppliers.FindAsync([id], ct)
             ?? throw new NotFoundException($"Supplier {id} not found");
 
         supplier.RequalificationDueUtc = DateTime.UtcNow.AddMonths(12);
+        supplier.RequalificationTrigger = body?.Trigger ?? "scheduled";
+        supplier.RequalificationStatus = "in_progress";
+
         await db.SaveChangesAsync(ct);
 
-        return Ok(new SupplierResponse(
-            supplier.Id, supplier.LegalEntityName, supplier.RegistrationNumber, supplier.TaxId, supplier.Address, "requalified", supplier.ActiveFlag));
+        return Ok(new RequalifySupplierResponse(supplier.Id, supplier.RequalificationStatus));
+    }
+
+    [HttpPost("{id:guid}/performance-records")]
+    public async Task<ActionResult<PerformanceRecordResponse>> CreatePerformanceRecord(
+        Guid id, [FromBody] CreatePerformanceRecordRequest body, CancellationToken ct)
+    {
+        var supplier = await db.Suppliers.FindAsync([id], ct)
+            ?? throw new NotFoundException($"Supplier {id} not found");
+
+        var record = new PerformanceRecord
+        {
+            SupplierId = supplier.Id,
+            PoNumber = body.PoNumber,
+            IncidentDescription = body.IncidentDescription,
+            CorrectiveAction = body.CorrectiveAction,
+            ResolutionStatus = "open",
+        };
+
+        db.PerformanceRecords.Add(record);
+        await db.SaveChangesAsync(ct);
+
+        return Ok(new PerformanceRecordResponse(record.Id));
     }
 
     [HttpGet("expiring-documents")]
