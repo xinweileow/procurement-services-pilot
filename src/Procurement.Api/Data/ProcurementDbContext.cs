@@ -48,6 +48,11 @@ public sealed class ProcurementDbContext(DbContextOptions<ProcurementDbContext> 
     public DbSet<NegotiationRound> NegotiationRounds => Set<NegotiationRound>();
     public DbSet<SavingsRecord> SavingsRecords => Set<SavingsRecord>();
 
+    // Module M9
+    public DbSet<Award> Awards => Set<Award>();
+    public DbSet<Contract> Contracts => Set<Contract>();
+    public DbSet<PricebookLine> PricebookLines => Set<PricebookLine>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Request>().Property(r => r.Status).HasConversion<string>();
