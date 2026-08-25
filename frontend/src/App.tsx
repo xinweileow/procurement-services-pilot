@@ -2,8 +2,10 @@ import { useState } from 'react';
 import { RequestorIntakeWizard } from './features/requestor-intake/RequestorIntakeWizard';
 import { WorkspaceDashboard } from './features/workspace-dashboard/WorkspaceDashboard';
 import { RequisitionsList } from './features/requisitions-list/RequisitionsList';
+import { BudgetConsole } from './features/budget-console/BudgetConsole';
+import { RequisitionFinalisation } from './features/requisition-finalisation/RequisitionFinalisation';
 
-type View = 'dashboard' | 'intake' | 'requisitions';
+type View = 'dashboard' | 'intake' | 'requisitions' | 'budget' | 'finalisation';
 
 function App() {
   const [view, setView] = useState<View>('dashboard');
@@ -16,6 +18,8 @@ function App() {
           <button type="button" onClick={() => setView('dashboard')}>Dashboard</button>
           <button type="button" onClick={() => setView('intake')}>New Request (Intake)</button>
           <button type="button" onClick={() => setView('requisitions')}>Requisitions</button>
+          <button type="button" onClick={() => setView('budget')}>Budget Console</button>
+          <button type="button" onClick={() => setView('finalisation')}>Requisition Finalisation</button>
         </nav>
       </header>
 
@@ -28,6 +32,8 @@ function App() {
         )}
         {view === 'intake' && <RequestorIntakeWizard />}
         {view === 'requisitions' && <RequisitionsList />}
+        {view === 'budget' && <BudgetConsole />}
+        {view === 'finalisation' && <RequisitionFinalisation />}
       </main>
     </div>
   );
