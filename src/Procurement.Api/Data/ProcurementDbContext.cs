@@ -44,6 +44,9 @@ public sealed class ProcurementDbContext(DbContextOptions<ProcurementDbContext> 
     // Module M7
     public DbSet<Evaluation> Evaluations => Set<Evaluation>();
     public DbSet<Clarification> Clarifications => Set<Clarification>();
+    // Module M8
+    public DbSet<NegotiationRound> NegotiationRounds => Set<NegotiationRound>();
+    public DbSet<SavingsRecord> SavingsRecords => Set<SavingsRecord>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
