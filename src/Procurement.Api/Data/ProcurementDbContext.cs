@@ -70,6 +70,11 @@ public sealed class ProcurementDbContext(DbContextOptions<ProcurementDbContext> 
     public DbSet<ReconciliationException> ReconciliationExceptions => Set<ReconciliationException>();
     public DbSet<AuditPack> AuditPacks => Set<AuditPack>();
 
+    // Module M12
+    public DbSet<ContractObligation> ContractObligations => Set<ContractObligation>();
+    public DbSet<Dispute> Disputes => Set<Dispute>();
+    public DbSet<PerformanceRecord> PerformanceRecords => Set<PerformanceRecord>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Request>().Property(r => r.Status).HasConversion<string>();
