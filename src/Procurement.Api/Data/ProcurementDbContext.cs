@@ -27,6 +27,12 @@ public sealed class ProcurementDbContext(DbContextOptions<ProcurementDbContext> 
     public DbSet<RoleAssignment> RoleAssignments => Set<RoleAssignment>();
     public DbSet<ApprovalTask> ApprovalTasks => Set<ApprovalTask>();
 
+    // Module M4 / M5
+    public DbSet<SourcingStrategy> SourcingStrategies => Set<SourcingStrategy>();
+    public DbSet<ThreePointCheck> ThreePointChecks => Set<ThreePointCheck>();
+    public DbSet<Supplier> Suppliers => Set<Supplier>();
+    public DbSet<TriageDecision> TriageDecisions => Set<TriageDecision>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Request>().Property(r => r.Status).HasConversion<string>();

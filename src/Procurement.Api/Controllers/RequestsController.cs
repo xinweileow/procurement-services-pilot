@@ -134,4 +134,42 @@ public sealed class RequestsController(ProcurementDbContext db, IRequestSubmissi
         var request = await submissionService.SubmitAsync(id, body, ct);
         return Ok(RequestResponse.From(request));
     }
+
+    [HttpPost("{id:guid}/triage-decision")]
+    public async Task<ActionResult<TriageDecisionResponse>> TriageDecision(
+        Guid id, [FromBody] TriageDecisionRequest body, CancellationToken ct)
+    {
+        var request = await db.Requests.FindAsync([id], ct)
+            ?? throw new NotFoundException($"Request {id} not found");
+
+        var decisionType = body.Decision.Trim().ToLowerInvariant();
+        if ((decisionType == "return" || decisionType == "reject") && string.IsNullOrWhiteSpace(body.Reason))
+        {
+            throw new UnprocessableException("Reason is required when returning or rejecting a request.");
+        }
+
+        var decision = new TriageDecision
+        {
+            RequestId = request.Id,
+            Decision = decisionType,
+            Reason = body.Reason,
+            AssigneeTeam = body.AssigneeTeam,
+            DecidedBy = "Procurement Administrator",
+            DecidedAtUtc = DateTime.UtcNow,
+        };
+
+        db.TriageDecisions.Add(decision);
+
+        if (decisionType == "reject")
+        {
+            request.Status = RequestStatus.Rejected;
+        }
+
+        await db.SaveChangesAsync(ct);
+
+        return Ok(new TriageDecisionResponse(
+            request.Id,
+            request.Status.ToString(),
+            new TriageDecisionItem(decision.Id, decision.RequestId, decision.Decision, decision.Reason, decision.AssigneeTeam, decision.DecidedBy, decision.DecidedAtUtc)));
+    }
 }
