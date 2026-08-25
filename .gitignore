@@ -4,3 +4,11 @@
 .loop-eng/data/
 __pycache__/
 *.pyc
+
+# .NET
+bin/
+obj/
+
+# Node / frontend
+frontend/node_modules/
+frontend/dist/
