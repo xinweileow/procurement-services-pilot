@@ -53,6 +53,15 @@ public sealed class ProcurementDbContext(DbContextOptions<ProcurementDbContext> 
     public DbSet<Contract> Contracts => Set<Contract>();
     public DbSet<PricebookLine> PricebookLines => Set<PricebookLine>();
 
+    // Module M10
+    public DbSet<PurchaseRequisition> PurchaseRequisitions => Set<PurchaseRequisition>();
+    public DbSet<PurchaseRequisitionItem> PurchaseRequisitionItems => Set<PurchaseRequisitionItem>();
+    public DbSet<PurchaseOrder> PurchaseOrders => Set<PurchaseOrder>();
+    public DbSet<GoodsReceipt> GoodsReceipts => Set<GoodsReceipt>();
+    public DbSet<Invoice> Invoices => Set<Invoice>();
+    public DbSet<EpvVoucher> EpvVouchers => Set<EpvVoucher>();
+    public DbSet<InvoiceException> InvoiceExceptions => Set<InvoiceException>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Request>().Property(r => r.Status).HasConversion<string>();
