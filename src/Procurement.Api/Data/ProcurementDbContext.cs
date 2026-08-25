@@ -16,9 +16,20 @@ public sealed class ProcurementDbContext(DbContextOptions<ProcurementDbContext> 
     public DbSet<Request> Requests => Set<Request>();
     public DbSet<RequestAttachment> RequestAttachments => Set<RequestAttachment>();
 
+    // Module M2
+    public DbSet<Budget> Budgets => Set<Budget>();
+    public DbSet<BudgetCommitment> BudgetCommitments => Set<BudgetCommitment>();
+    public DbSet<BudgetException> BudgetExceptions => Set<BudgetException>();
+    public DbSet<Requisition> Requisitions => Set<Requisition>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Request>().Property(r => r.Status).HasConversion<string>();
         modelBuilder.Entity<Request>().Property(r => r.RoutingDestination).HasConversion<string>();
+
+        modelBuilder.Entity<Budget>().Property(b => b.CostType).HasConversion<string>();
+        modelBuilder.Entity<BudgetCommitment>().Property(c => c.Status).HasConversion<string>();
+        modelBuilder.Entity<BudgetException>().Property(e => e.Status).HasConversion<string>();
+        modelBuilder.Entity<Requisition>().Property(r => r.Status).HasConversion<string>();
     }
 }
