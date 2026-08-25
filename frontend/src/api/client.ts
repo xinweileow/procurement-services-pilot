@@ -10,7 +10,9 @@ export class ApiError extends Error {
   }
 }
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '/api/v1';
+const API_BASE_URL = typeof window !== 'undefined' && window.location?.origin
+  ? `${window.location.origin}/api/v1`
+  : (import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5000/api/v1');
 
 /**
  * Shared, typed API client. Every caller in src/features/ goes through this instead of
@@ -19,7 +21,8 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '/api/v1';
  * developer-dotnet.md's error contract on the other side of the wire.
  */
 export async function apiRequest<T>(path: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(`${API_BASE_URL}${path}`, {
+  const url = path.startsWith('http') ? path : `${API_BASE_URL}${path}`;
+  const response = await fetch(url, {
     ...init,
     headers: {
       'Content-Type': 'application/json',
