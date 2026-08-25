@@ -41,6 +41,10 @@ public sealed class ProcurementDbContext(DbContextOptions<ProcurementDbContext> 
     public DbSet<RfxInvitation> RfxInvitations => Set<RfxInvitation>();
     public DbSet<RfxSubmission> RfxSubmissions => Set<RfxSubmission>();
 
+    // Module M7
+    public DbSet<Evaluation> Evaluations => Set<Evaluation>();
+    public DbSet<Clarification> Clarifications => Set<Clarification>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Request>().Property(r => r.Status).HasConversion<string>();
