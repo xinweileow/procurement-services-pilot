@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { apiRequest } from '../../api/client';
 import type { PagedResponse } from '../../types/requests';
+import { PageHeader, Card, StatusMessage, Badge, inputClass, labelClass, tableClass, theadClass, thClass, thRightClass, trClass, tdClass, tdRightClass, TableWrap, ButtonPrimary } from '../../components/ui';
 
 interface RequisitionItem {
   id: string;
@@ -28,6 +29,7 @@ export function RequisitionFinalisation() {
 
   useEffect(() => {
     loadData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search]);
 
   const handleFinalise = async (id: string, estCost: number) => {
@@ -45,53 +47,62 @@ export function RequisitionFinalisation() {
 
   return (
     <div>
-      <h2>Finance Commitment Console — Requisition Finalisation</h2>
+      <PageHeader title="Finance Commitment Console — Requisition Finalisation" />
 
-      {actionMessage && <div role="status" style={{ color: 'green', marginBottom: '1rem' }}>{actionMessage}</div>}
+      {actionMessage && <StatusMessage tone="success">{actionMessage}</StatusMessage>}
 
-      <div>
-        <label htmlFor="searchFinalised">Search</label>
-        <input
-          id="searchFinalised"
-          type="text"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Reference, title, or hire name..."
-        />
-      </div>
+      <Card>
+        <div className="flex flex-wrap items-end gap-3 mb-4">
+          <div className="flex-1 min-w-[200px] max-w-sm">
+            <label htmlFor="searchFinalised" className={labelClass}>
+              Search
+            </label>
+            <input
+              id="searchFinalised"
+              type="text"
+              className={inputClass}
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Reference, title, or hire name..."
+            />
+          </div>
+        </div>
 
-      {data && (
-        <table style={{ marginTop: '1rem' }}>
-          <thead>
-            <tr>
-              <th>Reference</th>
-              <th>Title</th>
-              <th>Estimated Cost</th>
-              <th>Final Spent</th>
-              <th>Status</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.items.map((r) => (
-              <tr key={r.id}>
-                <td>{r.reference}</td>
-                <td>{r.title}</td>
-                <td>MYR {r.estCost.toLocaleString()}</td>
-                <td>{r.finalSpent ? `MYR ${r.finalSpent.toLocaleString()}` : '—'}</td>
-                <td>{r.status}</td>
-                <td>
-                  {r.status === 'AwaitingFinalisation' && (
-                    <button type="button" onClick={() => handleFinalise(r.id, r.estCost)}>
-                      Finalise
-                    </button>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+        {data && (
+          <TableWrap>
+            <table className={tableClass}>
+              <thead className={theadClass}>
+                <tr className={trClass}>
+                  <th className={thClass}>Reference</th>
+                  <th className={thClass}>Title</th>
+                  <th className={thRightClass}>Estimated Cost</th>
+                  <th className={thClass}>Final Spent</th>
+                  <th className={thClass}>Status</th>
+                  <th className={thClass}>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.items.map((r) => (
+                  <tr key={r.id} className={trClass}>
+                    <td className={`${tdClass} font-mono text-2xs text-accent font-medium`}>{r.reference}</td>
+                    <td className={tdClass}>{r.title}</td>
+                    <td className={tdRightClass}>MYR {r.estCost.toLocaleString()}</td>
+                    <td className={tdRightClass}>{r.finalSpent ? `MYR ${r.finalSpent.toLocaleString()}` : '—'}</td>
+                    <td className={tdClass}>
+                      <Badge tone={r.status === 'AwaitingFinalisation' ? 'warning' : 'neutral'}>{r.status}</Badge>
+                    </td>
+                    <td className={tdClass}>
+                      {r.status === 'AwaitingFinalisation' && (
+                        <ButtonPrimary onClick={() => handleFinalise(r.id, r.estCost)}>Finalise</ButtonPrimary>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </TableWrap>
+        )}
+      </Card>
     </div>
   );
 }

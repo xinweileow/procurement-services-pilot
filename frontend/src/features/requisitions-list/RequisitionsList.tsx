@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { apiRequest } from '../../api/client';
 import type { PagedResponse, RequestResponse } from '../../types/requests';
+import { PageHeader, Card, inputClass, labelClass, tableClass, theadClass, thClass, thRightClass, trClass, tdClass, tdRightClass, TableWrap, ButtonGhost } from '../../components/ui';
 
 export function RequisitionsList() {
   const [status, setStatus] = useState<string>('');
@@ -19,50 +20,76 @@ export function RequisitionsList() {
 
   return (
     <div>
-      <h2>Requisitions</h2>
+      <PageHeader title="Requisitions" />
 
-      <div>
-        <label htmlFor="statusFilter">Status Filter</label>
-        <select id="statusFilter" value={status} onChange={(e) => { setStatus(e.target.value); setPage(1); }}>
-          <option value="">All</option>
-          <option value="Draft">Draft</option>
-          <option value="Submitted">Submitted</option>
-          <option value="Approved">Approved</option>
-        </select>
-      </div>
-
-      {data && (
-        <>
-          <table>
-            <thead>
-              <tr>
-                <th>Request ID</th>
-                <th>Title</th>
-                <th>Category</th>
-                <th>Estimated Value</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.items.map((r) => (
-                <tr key={r.id}>
-                  <td>{r.requestId}</td>
-                  <td>{r.title}</td>
-                  <td>{r.category}</td>
-                  <td>{r.currency} {r.estimatedValue.toLocaleString()}</td>
-                  <td>{r.status}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-
-          <div>
-            <span>Showing {data.items.length} of {data.total} entries</span>
-            <button type="button" disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>Previous</button>
-            <button type="button" disabled={page * 20 >= data.total} onClick={() => setPage((p) => p + 1)}>Next</button>
+      <Card>
+        <div className="flex flex-wrap items-end gap-3 mb-4">
+          <div className="w-48">
+            <label htmlFor="statusFilter" className={labelClass}>
+              Status Filter
+            </label>
+            <select
+              id="statusFilter"
+              className={inputClass}
+              value={status}
+              onChange={(e) => {
+                setStatus(e.target.value);
+                setPage(1);
+              }}
+            >
+              <option value="">All</option>
+              <option value="Draft">Draft</option>
+              <option value="Submitted">Submitted</option>
+              <option value="Approved">Approved</option>
+            </select>
           </div>
-        </>
-      )}
+        </div>
+
+        {data && (
+          <>
+            <TableWrap>
+              <table className={tableClass}>
+                <thead className={theadClass}>
+                  <tr className={trClass}>
+                    <th className={thClass}>Request ID</th>
+                    <th className={thClass}>Title</th>
+                    <th className={thClass}>Category</th>
+                    <th className={thRightClass}>Estimated Value</th>
+                    <th className={thClass}>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data.items.map((r) => (
+                    <tr key={r.id} className={trClass}>
+                      <td className={`${tdClass} font-mono text-2xs text-accent font-medium`}>{r.requestId}</td>
+                      <td className={tdClass}>{r.title}</td>
+                      <td className={tdClass}>{r.category}</td>
+                      <td className={tdRightClass}>
+                        {r.currency} {r.estimatedValue.toLocaleString()}
+                      </td>
+                      <td className={tdClass}>{r.status}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </TableWrap>
+
+            <div className="mt-3 flex items-center justify-between text-2xs text-ink-muted">
+              <span>
+                Showing {data.items.length} of {data.total} entries
+              </span>
+              <div className="flex items-center gap-2">
+                <ButtonGhost disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>
+                  Previous
+                </ButtonGhost>
+                <ButtonGhost disabled={page * 20 >= data.total} onClick={() => setPage((p) => p + 1)}>
+                  Next
+                </ButtonGhost>
+              </div>
+            </div>
+          </>
+        )}
+      </Card>
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { apiRequest } from '../../api/client';
+import { PageHeader, Card, StatusMessage, inputClass, labelClass, tableClass, theadClass, thClass, trClass, tdClass, TableWrap, ButtonPrimary, ButtonGhost } from '../../components/ui';
 
 interface ApprovalTask {
   id: string;
@@ -49,62 +50,68 @@ export function ApprovalInbox() {
 
   return (
     <div>
-      <h2>Workspace — Approval Inbox</h2>
+      <PageHeader title="Workspace — Approval Inbox" />
 
-      {actionMessage && <div role="status" style={{ color: 'green', marginBottom: '1rem' }}>{actionMessage}</div>}
-
-      <div>
-        <label htmlFor="statusFilter">Status</label>
-        <select
-          id="statusFilter"
-          value={status}
-          onChange={(e) => {
-            setStatus(e.target.value);
-            // Re-load trigger
-            setTimeout(loadData, 0);
-          }}
-        >
-          <option value="Pending">Pending Approval</option>
-          <option value="Approved">Approved</option>
-          <option value="Rejected">Rejected</option>
-        </select>
-      </div>
-
-      {data && (
-        <table style={{ marginTop: '1rem' }}>
-          <thead>
-            <tr>
-              <th>Request ID</th>
-              <th>Gate</th>
-              <th>Approver</th>
-              <th>Status</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.items.map((task) => (
-              <tr key={task.id}>
-                <td>{task.requestId}</td>
-                <td>{task.gate}</td>
-                <td>{task.approverId}</td>
-                <td>{task.status}</td>
-                <td>
-                  {task.status === 'Pending' && (
-                    <>
-                      <button type="button" onClick={() => handleDecision(task.id, 'approve')}>
-                        Approve
-                      </button>{' '}
-                      <button type="button" onClick={() => handleDecision(task.id, 'reject')}>
-                        Reject
-                      </button>
-                    </>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      {actionMessage && (
+        <StatusMessage tone="success">{actionMessage}</StatusMessage>
       )}
+
+      <Card>
+        <div className="flex flex-wrap items-end gap-3 mb-4">
+          <div className="w-48">
+            <label htmlFor="statusFilter" className={labelClass}>
+              Status
+            </label>
+            <select
+              id="statusFilter"
+              className={inputClass}
+              value={status}
+              onChange={(e) => {
+                setStatus(e.target.value);
+                setTimeout(loadData, 0);
+              }}
+            >
+              <option value="Pending">Pending Approval</option>
+              <option value="Approved">Approved</option>
+              <option value="Rejected">Rejected</option>
+            </select>
+          </div>
+        </div>
+
+        {data && (
+          <TableWrap>
+            <table className={tableClass}>
+              <thead className={theadClass}>
+                <tr className={trClass}>
+                  <th className={thClass}>Request ID</th>
+                  <th className={thClass}>Gate</th>
+                  <th className={thClass}>Approver</th>
+                  <th className={thClass}>Status</th>
+                  <th className={thClass}>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.items.map((task) => (
+                  <tr key={task.id} className={trClass}>
+                    <td className={`${tdClass} font-mono text-2xs text-accent font-medium`}>{task.requestId}</td>
+                    <td className={tdClass}>{task.gate}</td>
+                    <td className={tdClass}>{task.approverId}</td>
+                    <td className={tdClass}>{task.status}</td>
+                    <td className={tdClass}>
+                      {task.status === 'Pending' && (
+                        <div className="flex items-center gap-2">
+                          <ButtonPrimary onClick={() => handleDecision(task.id, 'approve')}>Approve</ButtonPrimary>
+                          <ButtonGhost onClick={() => handleDecision(task.id, 'reject')}>Reject</ButtonGhost>
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </TableWrap>
+        )}
+      </Card>
     </div>
   );
 }
