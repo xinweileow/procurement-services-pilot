@@ -32,6 +32,9 @@ public sealed class ProcurementDbContext(DbContextOptions<ProcurementDbContext> 
     public DbSet<ThreePointCheck> ThreePointChecks => Set<ThreePointCheck>();
     public DbSet<Supplier> Suppliers => Set<Supplier>();
     public DbSet<TriageDecision> TriageDecisions => Set<TriageDecision>();
+    public DbSet<DueDiligenceRecord> DueDiligenceRecords => Set<DueDiligenceRecord>();
+    public DbSet<SupplierException> SupplierExceptions => Set<SupplierException>();
+    public DbSet<SupplierDocument> SupplierDocuments => Set<SupplierDocument>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

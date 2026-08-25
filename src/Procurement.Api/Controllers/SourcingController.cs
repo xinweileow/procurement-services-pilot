@@ -113,3 +113,4 @@ public sealed class SourcingController(ProcurementDbContext db) : ControllerBase
         return Ok(new SpendAnalysisResponse(historicalSpend, benchmarkPrice, priceVariancePct, isTailSpend));
     }
 }
+

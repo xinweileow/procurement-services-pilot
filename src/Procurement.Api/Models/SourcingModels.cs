@@ -23,19 +23,6 @@ public sealed class ThreePointCheck
     public DateTime CheckedAtUtc { get; set; } = DateTime.UtcNow;
 }
 
-/// <summary>docs/kb/technical_kb.md Module M5, Entity: Supplier.</summary>
-public sealed class Supplier
-{
-    public Guid Id { get; set; } = Guid.NewGuid();
-    public string LegalEntityName { get; set; } = string.Empty;
-    public string RegistrationNumber { get; set; } = string.Empty;
-    public string TaxId { get; set; } = string.Empty;
-    public string Address { get; set; } = string.Empty;
-    public string KycStatus { get; set; } = "completed"; // pending | completed | failed
-    public int EsgScore { get; set; } = 75;
-    public bool ActiveFlag { get; set; } = true;
-    public DateTime CreatedAtUtc { get; set; } = DateTime.UtcNow;
-}
 
 /// <summary>docs/kb/technical_kb.md Module M1 / M4, Entity: TriageDecision.</summary>
 public sealed class TriageDecision

@@ -6,8 +6,10 @@ import { BudgetConsole } from './features/budget-console/BudgetConsole';
 import { RequisitionFinalisation } from './features/requisition-finalisation/RequisitionFinalisation';
 import { ApprovalInbox } from './features/approval-inbox/ApprovalInbox';
 import { ProcurementTriage } from './features/procurement-triage/ProcurementTriage';
+import { SupplierStatus } from './features/supplier-status/SupplierStatus';
+import { DueDiligenceStep } from './features/due-diligence/DueDiligenceStep';
 
-type View = 'dashboard' | 'intake' | 'requisitions' | 'budget' | 'finalisation' | 'inbox' | 'triage';
+type View = 'dashboard' | 'intake' | 'requisitions' | 'budget' | 'finalisation' | 'inbox' | 'triage' | 'supplier' | 'duediligence';
 
 function App() {
   const [view, setView] = useState<View>('dashboard');
@@ -24,6 +26,8 @@ function App() {
           <button type="button" onClick={() => setView('finalisation')}>Requisition Finalisation</button>
           <button type="button" onClick={() => setView('inbox')}>Approval Inbox</button>
           <button type="button" onClick={() => setView('triage')}>Procurement Triage</button>
+          <button type="button" onClick={() => setView('supplier')}>Supplier Status</button>
+          <button type="button" onClick={() => setView('duediligence')}>Due Diligence</button>
         </nav>
       </header>
 
@@ -40,6 +44,8 @@ function App() {
         {view === 'finalisation' && <RequisitionFinalisation />}
         {view === 'inbox' && <ApprovalInbox />}
         {view === 'triage' && <ProcurementTriage />}
+        {view === 'supplier' && <SupplierStatus />}
+        {view === 'duediligence' && <DueDiligenceStep />}
       </main>
     </div>
   );

@@ -229,3 +229,4 @@ public sealed class SourcingControllerTests(ProcurementApiFactory factory) : ICl
         Assert.False(body.TailSpendFlag);
     }
 }
+
