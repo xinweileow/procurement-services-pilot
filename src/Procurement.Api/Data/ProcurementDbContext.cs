@@ -22,6 +22,11 @@ public sealed class ProcurementDbContext(DbContextOptions<ProcurementDbContext> 
     public DbSet<BudgetException> BudgetExceptions => Set<BudgetException>();
     public DbSet<Requisition> Requisitions => Set<Requisition>();
 
+    // Module M3
+    public DbSet<GovernanceDeclaration> GovernanceDeclarations => Set<GovernanceDeclaration>();
+    public DbSet<RoleAssignment> RoleAssignments => Set<RoleAssignment>();
+    public DbSet<ApprovalTask> ApprovalTasks => Set<ApprovalTask>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Request>().Property(r => r.Status).HasConversion<string>();
@@ -31,5 +36,8 @@ public sealed class ProcurementDbContext(DbContextOptions<ProcurementDbContext> 
         modelBuilder.Entity<BudgetCommitment>().Property(c => c.Status).HasConversion<string>();
         modelBuilder.Entity<BudgetException>().Property(e => e.Status).HasConversion<string>();
         modelBuilder.Entity<Requisition>().Property(r => r.Status).HasConversion<string>();
+
+        modelBuilder.Entity<ApprovalTask>().Property(t => t.Gate).HasConversion<string>();
+        modelBuilder.Entity<ApprovalTask>().Property(t => t.Status).HasConversion<string>();
     }
 }
