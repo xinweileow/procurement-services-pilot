@@ -11,6 +11,36 @@ namespace Procurement.Api.Controllers;
 [Route("api/v1")]
 public sealed class EvaluationsController(ProcurementDbContext db) : ControllerBase
 {
+    // Pragmatic extension (same gap as M14/RfxEventsController): docs/kb/technical_kb.md
+    // Module M7's REST API Listing has no GET endpoint — a workspace cannot show existing
+    // evaluations/clarifications for an RFx event without one. Added for M15.
+    [HttpGet("rfx-events/{id:guid}/evaluations")]
+    public async Task<ActionResult<IReadOnlyList<EvaluationResponse>>> ListEvaluations(Guid id, CancellationToken ct)
+    {
+        var evaluations = await db.Evaluations
+            .Where(e => e.RfxEventId == id)
+            .OrderByDescending(e => e.CreatedAtUtc)
+            .Select(e => new EvaluationResponse(
+                e.Id, e.RfxEventId, e.SupplierId, e.EvaluatorId, e.TechnicalScore, e.CommercialScore, e.Comments, e.Status, e.LockedAtUtc))
+            .ToListAsync(ct);
+
+        return Ok(evaluations);
+    }
+
+    [HttpGet("rfx-events/{id:guid}/clarifications")]
+    public async Task<ActionResult<IReadOnlyList<ClarificationResponse>>> ListClarifications(Guid id, CancellationToken ct)
+    {
+        var clarifications = await db.Clarifications
+            .Where(c => c.RfxEventId == id)
+            .OrderByDescending(c => c.CreatedAtUtc)
+            .Select(c => new ClarificationResponse(
+                c.Id, c.RfxEventId, c.SupplierId, c.Category, c.Question, c.Response, c.IsMaterialDeviation, c.Status,
+                c.CreatedAtUtc, c.ResolvedAtUtc))
+            .ToListAsync(ct);
+
+        return Ok(clarifications);
+    }
+
     [HttpPost("rfx-events/{id:guid}/evaluations")]
     public async Task<ActionResult<EvaluationResponse>> ScoreEvaluation(
         Guid id, [FromBody] ScoreEvaluationRequest body, CancellationToken ct)

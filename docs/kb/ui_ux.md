@@ -182,10 +182,32 @@ Sources: the "Etiqa Smart Procurement Intake & Governance Prototype" HTML (a wor
 
 ---
 
-## Modules M7 — Evaluation, M8 — Negotiation/eAuction, M9 — Award & Contract Execution, M12 — Post-Contract Management
+## Module: M7 — Technical, Commercial & Contract Evaluation
 
 ### Screens / Flows
-No screens for evaluation workspaces, negotiation/eAuction, award-recommendation authoring, contract drafting/signing, or post-contract supplier management/SRM are present in either UI source, and none has been designed yet (tracked as Jira epics M15/M16/M17/M20 — see M14's precedent above for the pattern: no source screen exists, design fresh against business_kb.md + technical_kb.md, reuse design-system.md). The prototype's **Lifecycle Controls** view (`#lifecycleView`) shows a read-only 10-card control map (one card per S2P stage: Intake & budget, Supplier sourcing, Supplier due diligence, RFQ/RFP release, Tender submission, Evaluation, Award & approval, PO/LOA/LOI, Contract & variation, Performance & archive — each listing its enforced controls as bullet text) plus a read-only workflow-tracking timeline (Request, Budget, Assessment, Due diligence, RFQ/RFP, Tender, Evaluation, Award, PO/LOA/LOI, Contract stages with status dots done/current/blocked). This is explicitly described in the prototype as illustrative of downstream controls, not an interactive screen for those modules.
+- **Evaluation Workspace** (`frontend/src/features/evaluation-workspace/EvaluationWorkspace.tsx`, built M15, no reference mockup existed — designed against `business_kb.md`'s M7 Feature Trace and `technical_kb.md`'s M7 REST API listing) — select an RFx event (reusing the same event-list pattern as M14's RFx Events screen), then: a Score Evaluation form (Supplier ID, Evaluator ID, Technical/Commercial scores, comments, Lock toggle) plus a table of existing evaluations; a Clarifications section (raise with category/question/material-deviation flag, resolve pending ones inline with a response field) plus a table with Resolve actions; and a Status Gate Decision panel (proceed/return/reject).
+
+### Components & Interactions
+- The Lock toggle on Score Evaluation mirrors the backend's own lock semantics (`POST .../evaluations` 409s once `status: locked`) — once locked, re-submitting the same supplier+evaluator pair is expected to fail, surfaced via the same danger `StatusMessage` pattern used across the app.
+- A clarification flagged "material deviation" gets a `warning` badge; the Status Gate Decision's "proceed" option is expected to fail (422) while any material deviation on the selected event remains unresolved, matching the backend's own gate.
+
+### Source Element Mapping
+- No prototype/reference markup exists for this screen — original component names: `EvaluationWorkspace` (page), inline score/clarification forms, resolve-inline table pattern.
+
+### UX Behavior Checklist
+- [ ] Re-scoring a locked evaluation (same supplier + evaluator) must surface the backend's 409 as a danger `StatusMessage`, not fail silently.
+- [ ] A material-deviation clarification must be visually distinguished (warning badge) from a routine one.
+- [ ] "Proceed" status-gate decisions must reflect the backend's pass/fail outcome directly (`passed`/`message` from the response), not assume success.
+
+### Open Questions
+- No reference mockup ever existed for this screen; the M15 implementation above is an original design, not a transcription of a source.
+
+---
+
+## Modules M8 — Negotiation/eAuction, M9 — Award & Contract Execution, M12 — Post-Contract Management
+
+### Screens / Flows
+No screens for negotiation/eAuction, award-recommendation authoring, contract drafting/signing, or post-contract supplier management/SRM are present in either UI source, and none has been designed yet (tracked as Jira epics M16/M17/M20 — see M14/M15's precedent above for the pattern: no source screen exists, design fresh against business_kb.md + technical_kb.md, reuse design-system.md). The prototype's **Lifecycle Controls** view (`#lifecycleView`) shows a read-only 10-card control map (one card per S2P stage: Intake & budget, Supplier sourcing, Supplier due diligence, RFQ/RFP release, Tender submission, Evaluation, Award & approval, PO/LOA/LOI, Contract & variation, Performance & archive — each listing its enforced controls as bullet text) plus a read-only workflow-tracking timeline (Request, Budget, Assessment, Due diligence, RFQ/RFP, Tender, Evaluation, Award, PO/LOA/LOI, Contract stages with status dots done/current/blocked). This is explicitly described in the prototype as illustrative of downstream controls, not an interactive screen for those modules.
 
 ### Components & Interactions
 - `.life-grid` control cards (`#lifecycleGrid`) — one per stage, static bullet list, "Control set" badge.
@@ -198,10 +220,10 @@ No screens for evaluation workspaces, negotiation/eAuction, award-recommendation
 | `#lifecycleTimeline` | `WorkflowTrackingTimeline` | `trackingStages()` output: `[stage, statusDotClass, headline, detail][]` | display-only |
 
 ### UX Behavior Checklist
-- [ ] The lifecycle/timeline view is read-only in the prototype; the UX Behavior Checklist for the real M7–M9/M12 screens cannot be derived from either source and must be defined when those screens are designed.
+- [ ] The lifecycle/timeline view is read-only in the prototype; the UX Behavior Checklist for the real M8/M9/M12 screens cannot be derived from either source and must be defined when those screens are designed.
 
 ### Open Questions
-- Screens for evaluator scoring workspaces, clarification/deviation tracking, negotiation/eAuction, award-recommendation review, contract drafting/e-signature, contract catalogue/pricebook management, and post-contract SRM/KPI dashboards are not described in either UI source and are open for UI/UX design (Jira: M15, M16, M17, M20).
+- Screens for negotiation/eAuction, award-recommendation review, contract drafting/e-signature, contract catalogue/pricebook management, and post-contract SRM/KPI dashboards are not described in either UI source and are open for UI/UX design (Jira: M16, M17, M20).
 
 ---
 

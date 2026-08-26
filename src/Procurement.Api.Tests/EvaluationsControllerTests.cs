@@ -53,6 +53,42 @@ public sealed class EvaluationsControllerTests(ProcurementApiFactory factory) : 
     }
 
     [Fact]
+    public async Task ListEvaluations_ReturnsScoredEvaluationsForEvent()
+    {
+        var rfx = await SeedRfxEventAsync();
+        var client = factory.CreateClient();
+
+        await client.PostAsJsonAsync($"/api/v1/rfx-events/{rfx.Id}/evaluations", new ScoreEvaluationRequest(
+            SupplierId: Guid.NewGuid(), EvaluatorId: "eval-01", TechnicalScore: 80, CommercialScore: 70));
+
+        var response = await client.GetAsync($"/api/v1/rfx-events/{rfx.Id}/evaluations");
+        response.EnsureSuccessStatusCode();
+        var body = await response.Content.ReadFromJsonAsync<List<EvaluationResponse>>();
+
+        Assert.NotNull(body);
+        Assert.Single(body);
+        Assert.Equal(80, body[0].TechnicalScore);
+    }
+
+    [Fact]
+    public async Task ListClarifications_ReturnsClarificationsForEvent()
+    {
+        var rfx = await SeedRfxEventAsync();
+        var client = factory.CreateClient();
+
+        await client.PostAsJsonAsync($"/api/v1/rfx-events/{rfx.Id}/clarifications", new RaiseClarificationRequest(
+            SupplierId: Guid.NewGuid(), Category: "Commercial", Question: "Clarify pricing basis"));
+
+        var response = await client.GetAsync($"/api/v1/rfx-events/{rfx.Id}/clarifications");
+        response.EnsureSuccessStatusCode();
+        var body = await response.Content.ReadFromJsonAsync<List<ClarificationResponse>>();
+
+        Assert.NotNull(body);
+        Assert.Single(body);
+        Assert.Equal("pending", body[0].Status);
+    }
+
+    [Fact]
     public async Task StatusGateDecision_WithUnresolvedMaterialDeviation_Returns422()
     {
         var rfx = await SeedRfxEventAsync();
