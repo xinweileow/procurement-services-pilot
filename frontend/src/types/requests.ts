@@ -30,3 +30,32 @@ export interface DashboardSummaryResponse {
   pendingApprovals: unknown[];
   financeConsole: unknown[];
 }
+
+// M14 — RFx Design, Event Administration & Submission (docs/kb/technical_kb.md Module M6)
+export interface RfxEventResponse {
+  id: string;
+  sourcingStrategyId: string;
+  tenderType: 'open' | 'invited';
+  status: 'draft' | 'published' | 'closed' | 'cancelled' | 'opened';
+  openingDateUtc: string | null;
+  closingDateUtc: string | null;
+  createdAtUtc: string;
+}
+
+export interface RfxSubmissionResponse {
+  id: string;
+  supplierId: string;
+  technicalProposal: string | null;
+  commercialProposal: string | null;
+  bidStatus: 'submitted' | 'late' | 'opened' | 'disqualified';
+  submittedAt: string;
+}
+
+export interface RfxEventDetailResponse extends RfxEventResponse {
+  extensionReason: string | null;
+  cancellationReason: string | null;
+  openedBy: string | null;
+  openedAtUtc: string | null;
+  invitedSupplierIds: string[];
+  submissions: RfxSubmissionResponse[];
+}

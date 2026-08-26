@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using Microsoft.Extensions.DependencyInjection;
+using Procurement.Api.Common;
 using Procurement.Api.Data;
 using Procurement.Api.Models;
 using Procurement.Api.Models.Dtos;
@@ -167,6 +168,62 @@ public sealed class RfxEventsControllerTests(ProcurementApiFactory factory) : IC
             var response = await client.PostAsync($"/api/v1/rfx-events/{rfx.Id}/open", null);
             Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
         }
+    }
+
+    [Fact]
+    public async Task ListRfxEvents_FiltersByStatus()
+    {
+        var strategy = await SeedStrategyAsync();
+        var client = factory.CreateClient();
+
+        var draftReq = new CreateRfxEventRequest(SourcingStrategyId: strategy.Id);
+        await client.PostAsJsonAsync("/api/v1/rfx-events", draftReq);
+
+        var publishReq = new CreateRfxEventRequest(
+            SourcingStrategyId: strategy.Id, TechnicalTemplateId: Guid.NewGuid(), CommercialTemplateId: Guid.NewGuid());
+        var publishCreateResp = await client.PostAsJsonAsync("/api/v1/rfx-events", publishReq);
+        var toPublish = await publishCreateResp.Content.ReadFromJsonAsync<RfxEventResponse>();
+        await client.PostAsync($"/api/v1/rfx-events/{toPublish!.Id}/publish", null);
+
+        var response = await client.GetAsync("/api/v1/rfx-events?status=published");
+        response.EnsureSuccessStatusCode();
+        var body = await response.Content.ReadFromJsonAsync<PagedResponse<RfxEventResponse>>();
+
+        Assert.NotNull(body);
+        Assert.All(body.Items, i => Assert.Equal("published", i.Status));
+        Assert.Contains(body.Items, i => i.Id == toPublish.Id);
+    }
+
+    [Fact]
+    public async Task GetRfxEventById_ReturnsInvitationsAndSubmissions()
+    {
+        var strategy = await SeedStrategyAsync();
+        var supplier = await SeedSupplierAsync(active: true);
+        var client = factory.CreateClient();
+
+        var createReq = new CreateRfxEventRequest(SourcingStrategyId: strategy.Id);
+        var createResp = await client.PostAsJsonAsync("/api/v1/rfx-events", createReq);
+        var rfx = await createResp.Content.ReadFromJsonAsync<RfxEventResponse>();
+
+        await client.PostAsJsonAsync($"/api/v1/rfx-events/{rfx!.Id}/invitations", new InviteSuppliersRequest(SupplierIds: [supplier.Id]));
+
+        var response = await client.GetAsync($"/api/v1/rfx-events/{rfx.Id}");
+        response.EnsureSuccessStatusCode();
+        var body = await response.Content.ReadFromJsonAsync<RfxEventDetailResponse>();
+
+        Assert.NotNull(body);
+        Assert.Equal(rfx.Id, body.Id);
+        Assert.Contains(supplier.Id, body.InvitedSupplierIds);
+    }
+
+    [Fact]
+    public async Task GetRfxEventById_NotFound_Returns404()
+    {
+        var client = factory.CreateClient();
+
+        var response = await client.GetAsync($"/api/v1/rfx-events/{Guid.NewGuid()}");
+
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
 
     [Fact]

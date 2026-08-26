@@ -159,10 +159,33 @@ Sources: the "Etiqa Smart Procurement Intake & Governance Prototype" HTML (a wor
 
 ---
 
-## Modules M6 — RFx Design & Event Administration, M7 — Evaluation, M8 — Negotiation/eAuction, M9 — Award & Contract Execution, M12 — Post-Contract Management
+## Module: M6 — RFx Design, Event Administration & Submission
 
 ### Screens / Flows
-No screens for RFx building/publishing, evaluation workspaces, negotiation/eAuction, award-recommendation authoring, contract drafting/signing, or post-contract supplier management/SRM are present in either UI source. The prototype's **Lifecycle Controls** view (`#lifecycleView`) shows a read-only 10-card control map (one card per S2P stage: Intake & budget, Supplier sourcing, Supplier due diligence, RFQ/RFP release, Tender submission, Evaluation, Award & approval, PO/LOA/LOI, Contract & variation, Performance & archive — each listing its enforced controls as bullet text) plus a read-only workflow-tracking timeline (Request, Budget, Assessment, Due diligence, RFQ/RFP, Tender, Evaluation, Award, PO/LOA/LOI, Contract stages with status dots done/current/blocked). This is explicitly described in the prototype as illustrative of downstream controls, not an interactive screen for those modules.
+- **RFx Events** (`frontend/src/features/rfx-events/RfxEvents.tsx`, built M14-1/M14-2, no reference mockup existed for this module — designed fresh against `business_kb.md`'s M6 Feature Trace and `technical_kb.md`'s M6 REST API listing, reusing the design-system.md card/table/badge/filter patterns) — a master-detail screen: a filterable RFx Events list (status filter: draft/published/opened/closed/cancelled) with an inline "New RFx Event" create form (Sourcing Strategy ID, Tender Type, Technical/Commercial Template ID), and a detail panel for the selected event showing its metrics (tender type, opening/closing dates, invited-supplier count), a Publish action (enabled only while `draft`), an Invite Suppliers action (comma-separated supplier IDs — no supplier directory/search endpoint exists yet to build a real picker against), an Extend Deadline action (new closing date + mandatory reason), a Submissions table, and an Open Proposals action (enabled only once published and not yet opened).
+
+### Components & Interactions
+- Row-click select pattern on the RFx Events table sets the detail panel below it — no separate route/URL per event (matches this app's existing single-page `View` state pattern in `App.tsx`, not a router).
+- Publish/Open Proposals buttons are `disabled` client-side based on `status`, mirroring (not replacing) the backend's own gating (422 on incomplete-template publish, 403 on opening before the deadline) — the disabled state is a UX nicety, the backend remains the enforcement point.
+- **Backend deviation**: `technical_kb.md`'s M6 REST API Listing had no `GET` endpoint at all (only the write actions) — a screen cannot let a buyer pick an RFx event to act on without one. Added `GET /api/v1/rfx-events` (paged list, `status` filter) and `GET /api/v1/rfx-events/{id}` (detail, including invited supplier IDs and submissions) to `RfxEventsController.cs`, documented here and in the M14 Jira epic rather than silently invented.
+
+### Source Element Mapping
+- No prototype/reference markup exists for this screen (see Open Questions below) — the frontend component names are original: `RfxEvents` (page), inline create form, detail panel, submissions table.
+
+### UX Behavior Checklist
+- [ ] Publish must be blocked (and is, both client-side via `disabled` and server-side via 422) until both technical and commercial template IDs are set.
+- [ ] Open Proposals must be blocked until the RFx event is `published` and not already `opened`.
+- [ ] Extend Deadline must require a non-empty reason, matching the backend's 422 on a missing reason.
+
+### Open Questions
+- No reference mockup ever existed for this screen (carried forward from the prior version of this section) — the M14 implementation above is an original design, not a transcription of a source; a real supplier-directory/search endpoint would let Invite Suppliers become a proper picker instead of a raw ID input.
+
+---
+
+## Modules M7 — Evaluation, M8 — Negotiation/eAuction, M9 — Award & Contract Execution, M12 — Post-Contract Management
+
+### Screens / Flows
+No screens for evaluation workspaces, negotiation/eAuction, award-recommendation authoring, contract drafting/signing, or post-contract supplier management/SRM are present in either UI source, and none has been designed yet (tracked as Jira epics M15/M16/M17/M20 — see M14's precedent above for the pattern: no source screen exists, design fresh against business_kb.md + technical_kb.md, reuse design-system.md). The prototype's **Lifecycle Controls** view (`#lifecycleView`) shows a read-only 10-card control map (one card per S2P stage: Intake & budget, Supplier sourcing, Supplier due diligence, RFQ/RFP release, Tender submission, Evaluation, Award & approval, PO/LOA/LOI, Contract & variation, Performance & archive — each listing its enforced controls as bullet text) plus a read-only workflow-tracking timeline (Request, Budget, Assessment, Due diligence, RFQ/RFP, Tender, Evaluation, Award, PO/LOA/LOI, Contract stages with status dots done/current/blocked). This is explicitly described in the prototype as illustrative of downstream controls, not an interactive screen for those modules.
 
 ### Components & Interactions
 - `.life-grid` control cards (`#lifecycleGrid`) — one per stage, static bullet list, "Control set" badge.
@@ -175,10 +198,10 @@ No screens for RFx building/publishing, evaluation workspaces, negotiation/eAuct
 | `#lifecycleTimeline` | `WorkflowTrackingTimeline` | `trackingStages()` output: `[stage, statusDotClass, headline, detail][]` | display-only |
 
 ### UX Behavior Checklist
-- [ ] The lifecycle/timeline view is read-only in the prototype; the UX Behavior Checklist for the real M6–M9/M12 screens cannot be derived from either source and must be defined when those screens are designed.
+- [ ] The lifecycle/timeline view is read-only in the prototype; the UX Behavior Checklist for the real M7–M9/M12 screens cannot be derived from either source and must be defined when those screens are designed.
 
 ### Open Questions
-- Screens for RFx authoring/publishing, evaluator scoring workspaces, clarification/deviation tracking, negotiation/eAuction, award-recommendation review, contract drafting/e-signature, contract catalogue/pricebook management, and post-contract SRM/KPI dashboards are not described in either UI source and are open for UI/UX design.
+- Screens for evaluator scoring workspaces, clarification/deviation tracking, negotiation/eAuction, award-recommendation review, contract drafting/e-signature, contract catalogue/pricebook management, and post-contract SRM/KPI dashboards are not described in either UI source and are open for UI/UX design (Jira: M15, M16, M17, M20).
 
 ---
 

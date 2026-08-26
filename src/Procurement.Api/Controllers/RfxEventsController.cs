@@ -11,6 +11,54 @@ namespace Procurement.Api.Controllers;
 [Route("api/v1/rfx-events")]
 public sealed class RfxEventsController(ProcurementDbContext db) : ControllerBase
 {
+    // Pragmatic extension: docs/kb/technical_kb.md Module M6's REST API Listing has no
+    // GET endpoint at all, only the write actions below — a frontend cannot let a buyer
+    // pick an RFx event to publish/invite/extend/open without one. Added rather than
+    // left blocking (see M14 in Jira / docs/kb/design-system.md).
+    [HttpGet]
+    public async Task<ActionResult<PagedResponse<RfxEventResponse>>> List(
+        [FromQuery] string? status, [FromQuery] int page = 1, [FromQuery] int pageSize = 20, CancellationToken ct = default)
+    {
+        var query = db.RfxEvents.AsNoTracking().AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(status))
+        {
+            query = query.Where(r => r.Status == status.ToLowerInvariant());
+        }
+
+        var total = await query.CountAsync(ct);
+        var items = await query
+            .OrderByDescending(r => r.CreatedAtUtc)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .Select(r => new RfxEventResponse(
+                r.Id, r.SourcingStrategyId, r.TenderType, r.Status, r.OpeningDateUtc, r.ClosingDateUtc, r.CreatedAtUtc))
+            .ToListAsync(ct);
+
+        return Ok(new PagedResponse<RfxEventResponse>(items, page, pageSize, total));
+    }
+
+    [HttpGet("{id:guid}")]
+    public async Task<ActionResult<RfxEventDetailResponse>> GetById(Guid id, CancellationToken ct)
+    {
+        var rfx = await db.RfxEvents.FindAsync([id], ct)
+            ?? throw new NotFoundException($"RFx event {id} not found");
+
+        var invitedSupplierIds = await db.RfxInvitations
+            .Where(i => i.RfxEventId == id)
+            .Select(i => i.SupplierId)
+            .ToListAsync(ct);
+
+        var submissions = await db.RfxSubmissions
+            .Where(s => s.RfxEventId == id)
+            .Select(s => new RfxSubmissionResponse(s.Id, s.SupplierId, s.TechnicalProposal, s.CommercialProposal, s.BidStatus, s.SubmittedAtUtc))
+            .ToListAsync(ct);
+
+        return Ok(new RfxEventDetailResponse(
+            rfx.Id, rfx.SourcingStrategyId, rfx.TenderType, rfx.Status, rfx.OpeningDateUtc, rfx.ClosingDateUtc, rfx.CreatedAtUtc,
+            rfx.ExtensionReason, rfx.CancellationReason, rfx.OpenedBy, rfx.OpenedAtUtc, invitedSupplierIds, submissions));
+    }
+
     [HttpPost]
     public async Task<ActionResult<RfxEventResponse>> Create([FromBody] CreateRfxEventRequest body, CancellationToken ct)
     {
