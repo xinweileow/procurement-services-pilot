@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { apiRequest } from '../../api/client';
+import { Card, Badge, PageHeader, StatusMessage, inputClass, labelClass, tableClass, theadClass, thClass, trClass, tdClass, TableWrap, ButtonPrimary, ButtonGhost, ButtonDanger } from '../../components/ui';
 
 export interface TriageRoute {
   name: string;
@@ -34,13 +35,13 @@ export interface ProcurementTriageProps {
 
 export function TriageRouteList({ routes }: { routes: TriageRoute[] }) {
   return (
-    <div data-testid="triage-routes" style={{ marginBottom: '1.5rem' }}>
-      <h3>Triage Routes</h3>
-      <ul style={{ listStyleType: 'none', paddingLeft: 0 }}>
+    <div data-testid="triage-routes" className="mb-5">
+      <h3 className="text-[0.9375rem] font-semibold text-ink mb-2">Triage Routes</h3>
+      <ul className="space-y-2">
         {routes.map((r, i) => (
-          <li key={i} style={{ borderLeft: '4px solid #0056b3', padding: '0.5rem 1rem', marginBottom: '0.5rem', background: '#f8f9fa' }}>
-            <strong>{r.name}</strong>
-            <p style={{ margin: '0.25rem 0 0 0', color: '#555' }}>{r.rationale}</p>
+          <li key={i} className="border-l-4 border-accent px-4 py-2.5 bg-canvas-subtle rounded-r-md">
+            <strong className="text-sm text-ink">{r.name}</strong>
+            <p className="mt-1 text-2xs text-ink-muted">{r.rationale}</p>
           </li>
         ))}
       </ul>
@@ -50,70 +51,74 @@ export function TriageRouteList({ routes }: { routes: TriageRoute[] }) {
 
 export function GovernanceStatusTable({ rows }: { rows: GovernanceStatusRow[] }) {
   return (
-    <div data-testid="governance-status-table" style={{ marginBottom: '1.5rem' }}>
-      <h3>Governance Status</h3>
-      <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-        <thead>
-          <tr style={{ background: '#f1f1f1', textAlign: 'left' }}>
-            <th style={{ padding: '0.5rem' }}>Control</th>
-            <th style={{ padding: '0.5rem' }}>Status</th>
-            <th style={{ padding: '0.5rem' }}>System Response</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((row, i) => (
-            <tr key={i} style={{ borderBottom: '1px solid #eee' }}>
-              <td style={{ padding: '0.5rem' }}>{row.control}</td>
-              <td style={{ padding: '0.5rem' }}>
-                <span
-                  style={{
-                    display: 'inline-block',
-                    padding: '0.2rem 0.5rem',
-                    borderRadius: '4px',
-                    fontSize: '0.85rem',
-                    fontWeight: 'bold',
-                    background: row.status === 'Passed' || row.status === 'Clear' ? '#d4edda' : '#fff3cd',
-                    color: row.status === 'Passed' || row.status === 'Clear' ? '#155724' : '#856404',
-                  }}
-                >
-                  {row.status}
-                </span>
-              </td>
-              <td style={{ padding: '0.5rem', color: '#555' }}>{row.systemResponse}</td>
+    <div data-testid="governance-status-table" className="mb-5">
+      <h3 className="text-[0.9375rem] font-semibold text-ink mb-2">Governance Status</h3>
+      <TableWrap>
+        <table className={tableClass}>
+          <thead className={theadClass}>
+            <tr className={trClass}>
+              <th className={thClass}>Control</th>
+              <th className={thClass}>Status</th>
+              <th className={thClass}>System Response</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {rows.map((row, i) => (
+              <tr key={i} className={trClass}>
+                <td className={tdClass}>{row.control}</td>
+                <td className={tdClass}>
+                  <Badge tone={row.status === 'Passed' || row.status === 'Clear' ? 'success' : 'warning'}>
+                    {row.status}
+                  </Badge>
+                </td>
+                <td className={`${tdClass} text-ink-muted`}>{row.systemResponse}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </TableWrap>
     </div>
   );
 }
 
 export function RequestSummaryList({ summary }: { summary: RequestSummaryData }) {
+  const rows: Array<[string, string]> = [
+    ['Title', summary.title],
+    ['Requestor', summary.requestor],
+    ['Category', summary.category],
+    ['Estimated Value', summary.estimatedValue],
+    ['Recommended Route', summary.route],
+    ['Approval Level', summary.approvalLevel],
+    ['Proposed Supplier', summary.supplier],
+    ['ESG Score', summary.esgScore],
+    ['TPRM Status', summary.tprmStatus],
+    ['Contract Action', summary.contractAction],
+  ];
   return (
-    <div data-testid="request-summary-list" style={{ marginBottom: '1.5rem' }}>
-      <h3>Request Summary</h3>
-      <dl style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', rowGap: '0.5rem', margin: 0 }}>
-        <dt style={{ fontWeight: 'bold' }}>Title:</dt>
-        <dd style={{ margin: 0 }}>{summary.title}</dd>
-        <dt style={{ fontWeight: 'bold' }}>Requestor:</dt>
-        <dd style={{ margin: 0 }}>{summary.requestor}</dd>
-        <dt style={{ fontWeight: 'bold' }}>Category:</dt>
-        <dd style={{ margin: 0 }}>{summary.category}</dd>
-        <dt style={{ fontWeight: 'bold' }}>Estimated Value:</dt>
-        <dd style={{ margin: 0 }}>{summary.estimatedValue}</dd>
-        <dt style={{ fontWeight: 'bold' }}>Recommended Route:</dt>
-        <dd style={{ margin: 0 }}>{summary.route}</dd>
-        <dt style={{ fontWeight: 'bold' }}>Approval Level:</dt>
-        <dd style={{ margin: 0 }}>{summary.approvalLevel}</dd>
-        <dt style={{ fontWeight: 'bold' }}>Proposed Supplier:</dt>
-        <dd style={{ margin: 0 }}>{summary.supplier}</dd>
-        <dt style={{ fontWeight: 'bold' }}>ESG Score:</dt>
-        <dd style={{ margin: 0 }}>{summary.esgScore}</dd>
-        <dt style={{ fontWeight: 'bold' }}>TPRM Status:</dt>
-        <dd style={{ margin: 0 }}>{summary.tprmStatus}</dd>
-        <dt style={{ fontWeight: 'bold' }}>Contract Action:</dt>
-        <dd style={{ margin: 0 }}>{summary.contractAction}</dd>
+    <div data-testid="request-summary-list">
+      <h3 className="text-[0.9375rem] font-semibold text-ink mb-2">Request Summary</h3>
+      <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 text-sm">
+        {rows.map(([label, value]) => (
+          <div key={label} className="contents">
+            <dt className="text-ink-muted">{label}:</dt>
+            <dd className="m-0 text-ink font-medium">{value}</dd>
+          </div>
+        ))}
       </dl>
+    </div>
+  );
+}
+
+function ProgressRow({ label, value, pct, color }: { label: string; value: string; pct: number; color: string }) {
+  return (
+    <div className="mb-3">
+      <div className="flex justify-between text-2xs text-ink-muted mb-1">
+        <span>{label}</span>
+        <span>{value}</span>
+      </div>
+      <div className="h-2 bg-canvas-subtle rounded-full overflow-hidden">
+        <div className="h-full rounded-full" style={{ width: `${pct}%`, background: color }} />
+      </div>
     </div>
   );
 }
@@ -199,134 +204,86 @@ export function ProcurementTriage({
   };
 
   return (
-    <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
-      <h2>Procurement Triage & Assessment Overview</h2>
+    <div>
+      <PageHeader title="Procurement Triage & Assessment Overview" />
 
-      {/* Metrics Row */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
-        <div style={{ padding: '1rem', background: '#e9ecef', borderRadius: '4px' }}>
-          <div style={{ fontSize: '0.85rem', color: '#666' }}>Budget Gate</div>
-          <div style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#28a745' }}>Passed</div>
+      <div className="grid gap-3 grid-cols-1 sm:grid-cols-3 mb-5">
+        <div className="bg-surface border border-line rounded-md px-4 py-3">
+          <div className="text-2xs font-semibold uppercase tracking-wider text-ink-muted">Budget Gate</div>
+          <div className="text-xl font-bold leading-tight mt-1 text-success">Passed</div>
         </div>
-        <div style={{ padding: '1rem', background: '#e9ecef', borderRadius: '4px' }}>
-          <div style={{ fontSize: '0.85rem', color: '#666' }}>Award Readiness</div>
-          <div style={{ fontSize: '1.25rem', fontWeight: 'bold', color: hasBlockingIssues ? '#dc3545' : '#007bff' }}>
+        <div className="bg-surface border border-line rounded-md px-4 py-3">
+          <div className="text-2xs font-semibold uppercase tracking-wider text-ink-muted">Award Readiness</div>
+          <div className={`text-xl font-bold leading-tight mt-1 ${hasBlockingIssues ? 'text-danger' : 'text-info'}`}>
             {hasBlockingIssues ? 'Review Required' : 'Ready for Assessment'}
           </div>
         </div>
-        <div style={{ padding: '1rem', background: '#e9ecef', borderRadius: '4px' }}>
-          <div style={{ fontSize: '0.85rem', color: '#666' }}>Approval Level</div>
-          <div style={{ fontSize: '1.25rem', fontWeight: 'bold' }}>Head of Procurement</div>
+        <div className="bg-surface border border-line rounded-md px-4 py-3">
+          <div className="text-2xs font-semibold uppercase tracking-wider text-ink-muted">Approval Level</div>
+          <div className="text-xl font-bold leading-tight mt-1 text-ink">Head of Procurement</div>
         </div>
       </div>
 
       {statusMessage && (
-        <div
-          role="status"
-          style={{
-            padding: '0.75rem 1rem',
-            borderRadius: '4px',
-            marginBottom: '1rem',
-            background: statusType === 'success' ? '#d4edda' : statusType === 'error' ? '#f8d7da' : '#d1ecf1',
-            color: statusType === 'success' ? '#155724' : statusType === 'error' ? '#721c24' : '#0c5460',
-            border: `1px solid ${statusType === 'success' ? '#c3e6cb' : statusType === 'error' ? '#f5c6cb' : '#bee5eb'}`,
-          }}
-        >
-          {statusMessage}
+        <div role="status">
+          <StatusMessage tone={statusType === 'success' ? 'success' : statusType === 'error' ? 'danger' : 'info'}>
+            {statusMessage}
+          </StatusMessage>
         </div>
       )}
 
       {hasBlockingIssues && (
-        <div
-          role="alert"
-          style={{
-            padding: '0.75rem 1rem',
-            background: '#fff3cd',
-            color: '#856404',
-            border: '1px solid #ffeeba',
-            borderRadius: '4px',
-            marginBottom: '1rem',
-          }}
-        >
-          <strong>Blocking Issues Detected:</strong> {blockingReason}
+        <div role="alert">
+          <StatusMessage tone="warning">
+            <strong>Blocking Issues Detected:</strong> {blockingReason}
+          </StatusMessage>
         </div>
       )}
 
-      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '2rem' }}>
-        {/* Left Column: Routes, Governance, Summary */}
-        <div>
-          <TriageRouteList routes={defaultRoutes} />
-          <GovernanceStatusTable rows={defaultGovernanceRows} />
-          <RequestSummaryList summary={defaultSummary} />
+      <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-5">
+        <div className="space-y-5">
+          <Card>
+            <TriageRouteList routes={defaultRoutes} />
+            <GovernanceStatusTable rows={defaultGovernanceRows} />
+            <RequestSummaryList summary={defaultSummary} />
+          </Card>
         </div>
 
-        {/* Right Column: Workload Prioritisation & Decision Panel */}
-        <div>
-          {/* Workload Prioritisation */}
-          <div style={{ border: '1px solid #ddd', borderRadius: '4px', padding: '1rem', marginBottom: '1.5rem', background: '#fafafa' }}>
-            <h3>Workload Prioritisation</h3>
-            <div style={{ marginBottom: '0.75rem' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
-                <span>Business Urgency</span>
-                <span>High (75%)</span>
-              </div>
-              <div style={{ height: '8px', background: '#e0e0e0', borderRadius: '4px', overflow: 'hidden' }}>
-                <div style={{ width: '75%', height: '100%', background: '#fd7e14' }} />
-              </div>
-            </div>
-            <div style={{ marginBottom: '0.75rem' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
-                <span>Governance Complexity</span>
-                <span>Medium (60%)</span>
-              </div>
-              <div style={{ height: '8px', background: '#e0e0e0', borderRadius: '4px', overflow: 'hidden' }}>
-                <div style={{ width: '60%', height: '100%', background: '#ffc107' }} />
-              </div>
-            </div>
-            <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
-                <span>Submission Completeness</span>
-                <span>{hasBlockingIssues ? '80%' : '100%'}</span>
-              </div>
-              <div style={{ height: '8px', background: '#e0e0e0', borderRadius: '4px', overflow: 'hidden' }}>
-                <div style={{ width: hasBlockingIssues ? '80%' : '100%', height: '100%', background: '#28a745' }} />
-              </div>
-            </div>
-          </div>
+        <div className="space-y-5">
+          <Card title="Workload Prioritisation">
+            <ProgressRow label="Business Urgency" value="High (75%)" pct={75} color="#F59E0B" />
+            <ProgressRow label="Governance Complexity" value="Medium (60%)" pct={60} color="#F59E0B" />
+            <ProgressRow
+              label="Submission Completeness"
+              value={hasBlockingIssues ? '80%' : '100%'}
+              pct={hasBlockingIssues ? 80 : 100}
+              color="#16A34A"
+            />
+          </Card>
 
-          {/* Decision Panel */}
-          <div style={{ border: '1px solid #ccc', borderRadius: '4px', padding: '1rem', background: '#fff' }}>
-            <h3>Triage Decision</h3>
-
-            <div style={{ marginBottom: '1rem' }}>
-              <label htmlFor="prioritySelect" style={{ display: 'block', fontWeight: 'bold', marginBottom: '0.25rem' }}>
+          <Card title="Triage Decision">
+            <div className="mb-3">
+              <label htmlFor="prioritySelect" className={labelClass}>
                 Priority Level
               </label>
               <select
                 id="prioritySelect"
+                className={inputClass}
                 value={priority}
                 onChange={(e) => setPriority(e.target.value as 'Standard' | 'High' | 'Critical')}
-                style={{ width: '100%', padding: '0.5rem' }}
               >
                 <option value="Standard">Standard</option>
                 <option value="High">High</option>
                 <option value="Critical">Critical</option>
               </select>
-              <small style={{ color: '#666', display: 'block', marginTop: '0.25rem' }}>
-                Note: Priority changes are recorded in the audit trail.
-              </small>
+              <p className="text-2xs text-ink-muted mt-1">Note: Priority changes are recorded in the audit trail.</p>
             </div>
 
-            <div style={{ marginBottom: '1rem' }}>
-              <label htmlFor="assigneeTeam" style={{ display: 'block', fontWeight: 'bold', marginBottom: '0.25rem' }}>
+            <div className="mb-3">
+              <label htmlFor="assigneeTeam" className={labelClass}>
                 Assign to Team
               </label>
-              <select
-                id="assigneeTeam"
-                value={assignedTeam}
-                onChange={(e) => setAssignedTeam(e.target.value)}
-                style={{ width: '100%', padding: '0.5rem' }}
-              >
+              <select id="assigneeTeam" className={inputClass} value={assignedTeam} onChange={(e) => setAssignedTeam(e.target.value)}>
                 <option value="IT Procurement">IT Procurement</option>
                 <option value="Corporate Services">Corporate Services</option>
                 <option value="Marketing Sourcing">Marketing Sourcing</option>
@@ -334,78 +291,48 @@ export function ProcurementTriage({
               </select>
             </div>
 
-            <div style={{ marginBottom: '1rem' }}>
-              <label htmlFor="triageComments" style={{ display: 'block', fontWeight: 'bold', marginBottom: '0.25rem' }}>
+            <div className="mb-4">
+              <label htmlFor="triageComments" className={labelClass}>
                 Triage Comments
               </label>
               <textarea
                 id="triageComments"
                 rows={3}
+                className={inputClass}
                 value={triageComments}
                 onChange={(e) => setTriageComments(e.target.value)}
                 placeholder="Optional notes or instructions for the assessment team..."
-                style={{ width: '100%', padding: '0.5rem', boxSizing: 'border-box' }}
               />
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-              <button
-                type="button"
-                id="acceptButton"
-                onClick={handleAcceptForAssessment}
-                disabled={hasBlockingIssues}
-                style={{
-                  padding: '0.6rem 1rem',
-                  background: hasBlockingIssues ? '#ccc' : '#28a745',
-                  color: '#fff',
-                  border: 'none',
-                  borderRadius: '4px',
-                  cursor: hasBlockingIssues ? 'not-allowed' : 'pointer',
-                  fontWeight: 'bold',
-                }}
-              >
+            <div className="space-y-2">
+              <ButtonPrimary id="acceptButton" onClick={handleAcceptForAssessment} disabled={hasBlockingIssues} className="w-full py-2">
                 Accept for Assessment
-              </button>
+              </ButtonPrimary>
 
               {hasBlockingIssues && (
-                <div style={{ fontSize: '0.85rem', color: '#dc3545' }}>
-                  Action disabled: Resolve blocking issues before accepting.
-                </div>
+                <p className="text-2xs text-danger">Action disabled: Resolve blocking issues before accepting.</p>
               )}
 
-              <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
-                <button
-                  type="button"
-                  onClick={() => handleRejectOrReturn('return')}
-                  style={{ flex: 1, padding: '0.4rem', background: '#ffc107', border: '1px solid #d39e00', borderRadius: '4px' }}
-                >
+              <div className="flex gap-2 pt-1">
+                <ButtonGhost className="flex-1" onClick={() => handleRejectOrReturn('return')}>
                   Request Info
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleRejectOrReturn('reject')}
-                  style={{ flex: 1, padding: '0.4rem', background: '#dc3545', color: '#fff', border: 'none', borderRadius: '4px' }}
-                >
+                </ButtonGhost>
+                <ButtonDanger className="flex-1" onClick={() => handleRejectOrReturn('reject')}>
                   Reject / Close
-                </button>
+                </ButtonDanger>
               </div>
 
-              {/* Dev toggle to test blocking state */}
-              <div style={{ marginTop: '1rem', borderTop: '1px dashed #ddd', paddingTop: '0.5rem' }}>
-                <label style={{ fontSize: '0.8rem', color: '#777' }}>
-                  <input
-                    type="checkbox"
-                    checked={hasBlockingIssues}
-                    onChange={(e) => setHasBlockingIssues(e.target.checked)}
-                  />{' '}
+              <div className="mt-3 pt-2 border-t border-dashed border-line">
+                <label className="text-2xs text-ink-muted inline-flex items-center gap-1.5 cursor-pointer">
+                  <input type="checkbox" checked={hasBlockingIssues} onChange={(e) => setHasBlockingIssues(e.target.checked)} />
                   Simulate blocking issue
                 </label>
               </div>
             </div>
-          </div>
+          </Card>
         </div>
       </div>
     </div>
   );
 }
-
