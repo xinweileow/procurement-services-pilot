@@ -439,7 +439,7 @@
 | n/a (backend-only) | `submitProposal` (supplier-facing, out of Etiqa-user scope) | `POST /api/v1/rfx-events/{id}/submissions` | RFx / Sourcing Event Service | RfxSubmission |
 | n/a (backend-only) | `openProposals` | `POST /api/v1/rfx-events/{id}/open` | RFx / Sourcing Event Service | RfxEvent, RfxSubmission |
 
-**Ticketing Hints:** stack: dotnet (backend-only for this Feature; no UI is described in either source, so no paired frontend ticket is created here — see ui_ux.md Open Questions) | likely scope: `src/Procurement.Api/Controllers/RfxEventsController.cs`
+**Ticketing Hints:** stack: dotnet | likely scope: `src/Procurement.Api/Controllers/RfxEventsController.cs` — paired with stack: frontend (M14, no source UI existed so the screen was designed fresh) | likely scope: `src/features/rfx-events/`
 
 **Technical Acceptance Criteria:**
 - [ ] `POST /api/v1/rfx-events/{id}/publish` returns 422 when required sections (technical, commercial, evaluators, dates) are incomplete.
@@ -449,12 +449,16 @@
 ### REST API Listing
 | Method | Path | Auth | Request Schema | Response Schema | Error Cases |
 |---|---|---|---|---|---|
+| GET | /api/v1/rfx-events | bearer token | query: `status?, page?, pageSize?` | `PagedResponse<RfxEventResponse>` | 401 unauthenticated |
+| GET | /api/v1/rfx-events/{id} | bearer token | — | `RfxEventDetailResponse` (adds `invitedSupplierIds`, `submissions`) | 401 unauthenticated, 404 not found |
 | POST | /api/v1/rfx-events | bearer token | `{sourcingStrategyId, technicalTemplateId, commercialTemplateId, contractTemplateId, tenderType: "open"\|"invited"}` | `{id, status: "draft"}` | 401 unauthenticated, 422 missing required template |
 | POST | /api/v1/rfx-events/{id}/publish | bearer token | — | `{id, status: "published", openingDate, closingDate}` | 401 unauthenticated, 404 not found, 422 incomplete configuration |
 | POST | /api/v1/rfx-events/{id}/invitations | bearer token | `{supplierIds: string[]}` | `{invited: string[]}` | 401 unauthenticated, 404 event not found, 422 supplier not eligible |
 | POST | /api/v1/rfx-events/{id}/extend | bearer token | `{newClosingDate, reason}` | `{id, closingDate}` | 401 unauthenticated, 404 not found, 422 missing reason |
 | POST | /api/v1/rfx-events/{id}/submissions | supplier token (external) | `{technicalProposal, commercialProposal, attachments}` | `{id, submittedAt, bidStatus}` | 401 unauthenticated, 404 not found, 409 late without exception |
 | POST | /api/v1/rfx-events/{id}/open | bearer token | — | `{openedBy, openedAt, submissions: RfxSubmission[]}` | 401 unauthenticated, 403 before deadline, 404 not found |
+
+**Deviation (M14):** the GET list/detail rows above were not in the original listing — no read endpoint existed at all, which blocks any frontend from ever selecting an RFx event to act on. Added when building the M14 frontend; see `RfxEventsController.cs` and `ui_ux.md` Module M6.
 
 ### Data Model
 
@@ -483,7 +487,7 @@
 | none identified for this module | RFx administration is internal; no external system is named. |
 
 ### Open Decisions (TBD)
-- No screen exists in either UI source for RFx authoring/publishing (carried from ui_ux.md Open Questions); the endpoints above are designed generically and need UI/UX design before a frontend ticket can be written.
+- ~~No screen exists in either UI source for RFx authoring/publishing~~ — resolved by M14 (Jira epic SMOKETEST-121): `frontend/src/features/rfx-events/RfxEvents.tsx`, an original design (no source mockup existed) documented in `ui_ux.md` Module M6. `submitProposal` stays backend-only/supplier-facing, out of this internal app's scope.
 
 ---
 

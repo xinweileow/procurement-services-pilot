@@ -8,6 +8,7 @@ import {
   Building2,
   BadgeCheck,
   DollarSign,
+  Gavel,
 } from 'lucide-react';
 import { AppShell, type NavSection } from './components/AppShell';
 import { RequestorIntakeWizard } from './features/requestor-intake/RequestorIntakeWizard';
@@ -19,6 +20,7 @@ import { ApprovalInbox } from './features/approval-inbox/ApprovalInbox';
 import { ProcurementTriage } from './features/procurement-triage/ProcurementTriage';
 import { SupplierStatus } from './features/supplier-status/SupplierStatus';
 import { DueDiligenceStep } from './features/due-diligence/DueDiligenceStep';
+import { RfxEvents } from './features/rfx-events/RfxEvents';
 
 type View =
   | 'dashboard'
@@ -29,7 +31,8 @@ type View =
   | 'inbox'
   | 'triage'
   | 'supplier'
-  | 'duediligence';
+  | 'duediligence'
+  | 'rfxevents';
 
 const PAGE_TITLES: Record<View, string> = {
   dashboard: 'Dashboard',
@@ -41,6 +44,7 @@ const PAGE_TITLES: Record<View, string> = {
   triage: 'Procurement Triage',
   supplier: 'Supplier Status',
   duediligence: 'Due Diligence',
+  rfxevents: 'RFx Events',
 };
 
 const NAV_SECTIONS: NavSection<View>[] = [
@@ -60,6 +64,10 @@ const NAV_SECTIONS: NavSection<View>[] = [
       { id: 'supplier', label: 'Supplier Status', icon: Building2 },
       { id: 'duediligence', label: 'Due Diligence', icon: BadgeCheck },
     ],
+  },
+  {
+    label: 'Sourcing',
+    items: [{ id: 'rfxevents', label: 'RFx Events', icon: Gavel }],
   },
   {
     label: 'Finance',
@@ -89,6 +97,7 @@ function App() {
       {view === 'triage' && <ProcurementTriage />}
       {view === 'supplier' && <SupplierStatus />}
       {view === 'duediligence' && <DueDiligenceStep />}
+      {view === 'rfxevents' && <RfxEvents />}
     </AppShell>
   );
 }

@@ -66,3 +66,23 @@ public sealed record RfxSubmissionResponse(
 
 public sealed record CancelRfxRequest(
     string Reason);
+
+/// <summary>
+/// Pragmatic extension (docs/kb/technical_kb.md Module M6 has no GET listing/detail
+/// endpoint — only the write actions). M14 (frontend) cannot let a buyer pick an RFx
+/// event to act on without one, so this is added here rather than left blocking.
+/// </summary>
+public sealed record RfxEventDetailResponse(
+    Guid Id,
+    Guid SourcingStrategyId,
+    string TenderType,
+    string Status,
+    DateTime? OpeningDateUtc,
+    DateTime? ClosingDateUtc,
+    DateTime CreatedAtUtc,
+    string? ExtensionReason,
+    string? CancellationReason,
+    string? OpenedBy,
+    DateTime? OpenedAtUtc,
+    IReadOnlyList<Guid> InvitedSupplierIds,
+    IReadOnlyList<RfxSubmissionResponse> Submissions);
