@@ -59,3 +59,29 @@ export interface RfxEventDetailResponse extends RfxEventResponse {
   invitedSupplierIds: string[];
   submissions: RfxSubmissionResponse[];
 }
+
+// M15 — Technical, Commercial & Contract Evaluation (docs/kb/technical_kb.md Module M7)
+export interface EvaluationResponse {
+  id: string;
+  rfxEventId: string;
+  supplierId: string;
+  evaluatorId: string;
+  technicalScore: number;
+  commercialScore: number;
+  comments: string | null;
+  status: 'draft' | 'locked';
+  lockedAtUtc: string | null;
+}
+
+export interface ClarificationResponse {
+  id: string;
+  rfxEventId: string;
+  supplierId: string;
+  category: string;
+  question: string;
+  response: string | null;
+  isMaterialDeviation: boolean;
+  status: 'pending' | 'resolved';
+  createdAtUtc: string;
+  resolvedAtUtc: string | null;
+}

@@ -503,7 +503,7 @@
 | n/a (backend-only) | `resolveClarification` | `PATCH /api/v1/clarifications/{id}` | RFx / Sourcing Event Service | Clarification |
 | n/a (backend-only) | `decideStatusGate` | `POST /api/v1/rfx-events/{id}/status-gate-decision` | RFx / Sourcing Event Service | Evaluation |
 
-**Ticketing Hints:** stack: dotnet (backend-only; no UI in either source) | likely scope: `src/Procurement.Api/Controllers/EvaluationsController.cs`
+**Ticketing Hints:** stack: dotnet | likely scope: `src/Procurement.Api/Controllers/EvaluationsController.cs` — paired with stack: frontend (M15, no source UI existed so the screen was designed fresh) | likely scope: `src/features/evaluation-workspace/`
 
 **Technical Acceptance Criteria:**
 - [ ] `POST /api/v1/rfx-events/{id}/evaluations` returns 409 when the evaluation is already `locked`.
@@ -512,10 +512,14 @@
 ### REST API Listing
 | Method | Path | Auth | Request Schema | Response Schema | Error Cases |
 |---|---|---|---|---|---|
-| POST | /api/v1/rfx-events/{id}/evaluations | bearer token | `{supplierId, dimension: "technical"\|"commercial"\|"contract", score, comments}` | `{id, status: "locked"}` | 401 unauthenticated, 404 not found, 409 already locked |
-| POST | /api/v1/rfx-events/{id}/clarifications | bearer token | `{supplierId, question, dueDate}` | `{id, status: "open"}` | 401 unauthenticated, 404 not found |
-| PATCH | /api/v1/clarifications/{id} | bearer token | `{reply?, status: "closed"\|"open"}` | `{id, ...updated}` | 401 unauthenticated, 404 not found |
-| POST | /api/v1/rfx-events/{id}/status-gate-decision | bearer token | `{supplierId, decision: "proceed"\|"stop", reason?}` | `{id, decision}` | 401 unauthenticated, 404 not found, 422 unresolved material item |
+| GET | /api/v1/rfx-events/{id}/evaluations | bearer token | — | `EvaluationResponse[]` | 401 unauthenticated |
+| GET | /api/v1/rfx-events/{id}/clarifications | bearer token | — | `ClarificationResponse[]` | 401 unauthenticated |
+| POST | /api/v1/rfx-events/{id}/evaluations | bearer token | `{supplierId, evaluatorId, technicalScore, commercialScore, comments?, lock?}` | `{id, ..., status: "draft"\|"locked"}` | 401 unauthenticated, 404 not found, 409 already locked |
+| POST | /api/v1/rfx-events/{id}/clarifications | bearer token | `{supplierId, category, question, isMaterialDeviation?}` | `{id, status: "pending"}` | 401 unauthenticated, 404 not found, 422 empty question |
+| PATCH | /api/v1/clarifications/{id} | bearer token | `{response}` | `{id, ..., status: "resolved"}` | 401 unauthenticated, 404 not found |
+| POST | /api/v1/rfx-events/{id}/status-gate-decision | bearer token | `{decision: "proceed"\|"return"\|"reject", supplierId?}` | `{rfxEventId, decision, passed, message}` | 401 unauthenticated, 404 not found, 422 unresolved material deviation |
+
+**Deviation (M15):** the two GET rows above were not in the original listing (same gap pattern as M6/M14) — added when building the M15 frontend so the Evaluation Workspace can show existing evaluations/clarifications, not just submit new ones. Also corrected the request/response schemas above to match the actual implementation in `EvaluationsController.cs`/`EvaluationDtos.cs` (the original prose used `dimension/score` and `reply`/`dueDate` fields that don't exist in the real DTOs — `ScoreEvaluationRequest` scores technical and commercial in one call, `RaiseClarificationRequest` has no `dueDate`).
 
 ### Data Model
 
@@ -545,7 +549,7 @@
 | none identified for this module | Evaluation/clarification workflow is internal. |
 
 ### Open Decisions (TBD)
-- No evaluation workspace UI is described in either source (carried from ui_ux.md).
+- ~~No evaluation workspace UI is described in either source~~ — resolved by M15 (Jira epic SMOKETEST-124): `frontend/src/features/evaluation-workspace/EvaluationWorkspace.tsx`, an original design documented in `ui_ux.md` Module M7.
 
 ---
 
